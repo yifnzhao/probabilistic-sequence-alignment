@@ -7,6 +7,9 @@ Created on Wed Dec  4 11:03:26 2019
 """
 from seed import seedS, loadData
 import random
+from datetime import datetime
+
+
 
 
 
@@ -46,7 +49,7 @@ def ungapped_viterbi(obs, seed, matrix):
     V[5]: previous position wrt query
     V[6]: previous state (seed, Mi or Mj)
     '''
-    
+    random.seed(datetime.now())
     start_p = {'seed': 1,
               'Mi': 0,
               'Mj' : 0}
@@ -131,6 +134,7 @@ def ungapped_viterbi(obs, seed, matrix):
        
 
 if __name__ == '__main__':
+    
     # Calculate the most probable state path using the Viterbi algorithm. 
     genome_path = "../data/chr22.maf.ancestors.42000000.complete.boreo.fa.txt"
     prob_path = "../data/chr22.maf.ancestors.42000000.complete.boreo.conf.txt"
