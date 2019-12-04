@@ -30,7 +30,7 @@ def generateHighestScoreQuery(g_path, p_path, n_query=100):
     return queryList
     
 
-def generateQuery(g_path, p_path, weight = 0.75, n_query=100):
+def generateQueryGapless(g_path, p_path, weight = 0.75, n_query=100):
     # 75% probability select highest scoring nucleotide by default 
     random.seed(datetime.now())
     allNu = ['A','C','T','G']
@@ -61,10 +61,10 @@ if __name__ == "__main__":
     genome_path = "../data/chr22.maf.ancestors.42000000.complete.boreo.fa.txt"
     prob_path = "../data/chr22.maf.ancestors.42000000.complete.boreo.conf.txt"
     highest_score_query_list= generateHighestScoreQuery(genome_path, prob_path)
-    query_list_75 = generateQuery(genome_path, prob_path, weight = 75)
-    query_list_50 = generateQuery(genome_path, prob_path, weight = 50)
-    query_list_25 = generateQuery(genome_path, prob_path, weight = 25)
-    query_list_random = generateQuery(genome_path, prob_path, weight = 0)
+    query_list_75_gapless = generateQueryGapless(genome_path, prob_path, weight = 75)
+    query_list_50_gapless = generateQueryGapless(genome_path, prob_path, weight = 50)
+    query_list_25_gapless = generateQueryGapless(genome_path, prob_path, weight = 25)
+    query_list_random_gapless = generateQueryGapless(genome_path, prob_path, weight = 0)
     
 
 
