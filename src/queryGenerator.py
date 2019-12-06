@@ -6,16 +6,57 @@ Created on Wed Dec  4 15:41:46 2019
 @author: yifan
 """
 
-from seed import loadData
 import random
 from datetime import datetime
-from ungapped import findProb
+from math import log
+import pickle
 
+def loadData(genome_path, prob_path):
+    allNu = ['A','C','T','G']
+    matrix = dict()
+    # read genome data
+    f_genome = open(genome_path)
+    genome = f_genome.read()
+    f_genome.close()
+    # read probability data
+    f_prob = open(prob_path)
+    prob = f_prob.read()
+    f_prob.close()
+    prob = prob.split()
+    genome = list(genome)
+    for nu in allNu:
+        matrix[nu] = []
+    highest_prob_genome = []
+    for i in range(len(genome)):
+        # update matrix and highestProbGenome
+        #  for the nucleotide with highest probability
+        maxProb = -log(float(prob[i]))
+        matrix[genome[i]].append(maxProb)
+        highest_prob_genome.append(genome[i])
+        
+        # update matrix for the rest
+        rest_nu = [n for n in allNu if n!=genome[i]]
+        rest_prob = -log((1-maxProb) / float(3)) 
+        for n in rest_nu:
+            matrix[n].append(rest_prob)
+    
+    highest_prob_genome_str =''.join(highest_prob_genome)
+    return matrix, highest_prob_genome_str
 
+def findProb(matrix, seedStart, seed):
+    '''
+    seedStart: starting position of the seed wrt matrix
+    output is a probability of the seed aligning to the matrix gaplessly
+    '''
+    prob = 0
+    for index in range(len(seed)):
+        n = seed[index]
+        prob += matrix[n][seedStart]
+        seedStart+=1
+    return prob
 
-def generateHighestScoreQuery(g_path, p_path, n_query=100, length = -1):
+def generateHighestScoreQuery(gpath, ppath, n_query=5, length = -1):
     random.seed(datetime.now())
-
     matrix, highest_prob_genome_str = loadData(gpath, ppath)
     len_genome = len(highest_prob_genome_str)
     queryList = []
@@ -38,7 +79,7 @@ def generateHighestScoreQuery(g_path, p_path, n_query=100, length = -1):
     return queryList, trueProbList
     
 
-def generateQueryGapless(g_path, p_path, weight = 0.75, n_query=100, length=-1):
+def generateQueryGapless(gpath, ppath, weight = 0.75, n_query=5, length=-1):
     # 75% probability select highest scoring nucleotide by default 
     random.seed(datetime.now())
     allNu = ['A','C','T','G']
@@ -72,7 +113,7 @@ def generateQueryGapless(g_path, p_path, weight = 0.75, n_query=100, length=-1):
     return queryList, trueProbList
 
 
-def generateQueryGapless_shortQueryHighScore(g_path, p_path, n_query=100, length=-1):
+def generateQueryGapless_shortQueryHighScore(gpath, ppath, n_query=5, length=-1):
     random.seed(datetime.now())
     allNu = ['A','C','T','G']
     matrix, highest_prob_genome_str = loadData(gpath, ppath)
@@ -118,12 +159,12 @@ def queryGenerator(gpath, ppath):
     '''
     query = {}
     
-    # -- generate 100 highest scoring query sequences of variable lengths b/t 6 and 200 ---
+    # -- generate 5 highest scoring query sequences of variable lengths b/t 6 and 200 ---
 
     q_100_rand, p_100_rand = generateHighestScoreQuery(gpath, ppath)
     query["q_100_rand"] = q_100_rand
     query["p_100_rand"] = p_100_rand
-    # -- generate 100 highest scoring query sequences of fixed lengths b/t 6 and 200 --- 
+    # -- generate 5 highest scoring query sequences of fixed lengths b/t 6 and 200 --- 
     q_100_25, p_100_25 = generateHighestScoreQuery(gpath, ppath, length = 25)
     q_100_50, p_100_50 = generateHighestScoreQuery(gpath, ppath, length = 50)
     q_100_200, p_100_200 = generateHighestScoreQuery(gpath, ppath, length = 200)
@@ -134,7 +175,7 @@ def queryGenerator(gpath, ppath):
     query["p_100_50"] = p_100_50
     query["p_100_200"] = p_100_200
     
-    # -- generate 100 query sequences of variable lengths b/t 6 and 200, with specified (fixed) weights for choosing high prob nucleotide--- 
+    # -- generate 5 query sequences of variable lengths b/t 6 and 200, with specified (fixed) weights for choosing high prob nucleotide--- 
     q_75_rand, p_75_rand= generateQueryGapless(gpath, ppath, weight = 0.75)
     q_50_rand, p_50_rand = generateQueryGapless(gpath, ppath, weight = 0.50)
     q_25_rand, p_25_rand = generateQueryGapless(gpath, ppath, weight = 0.25)
@@ -149,7 +190,7 @@ def queryGenerator(gpath, ppath):
     query["p_25_rand"] = p_25_rand  
     query["p_rand_rand"] = p_rand_rand
 
-    # -- generate 100 query sequences of specified (fixed) lengths, with specified (fixed) weights for choosing high prob nucleotide--- 
+    # -- generate 25 query sequences of specified (fixed) lengths, with specified (fixed) weights for choosing high prob nucleotide--- 
     # ----- weight = 0.75 ------
     q_75_25, p_75_25= generateQueryGapless(gpath, ppath, weight = 0.75, length = 25)
     q_75_50, p_75_50= generateQueryGapless(gpath, ppath, weight = 0.75, length = 50)
@@ -219,8 +260,11 @@ def queryGenerator(gpath, ppath):
     query["p_prop_100"] = p_prop_100
     query["p_prop_100"] = q_prop_200
             
+    
+    with open('../data/query.txt', 'wb') as handle:
+        pickle.dump(query, handle)
     return query      
-            
+                
             
     
 
@@ -231,4 +275,5 @@ if __name__ == "__main__":
     ppath = "../data/chr22.maf.ancestors.42000000.complete.boreo.conf.txt"
     query = queryGenerator(gpath, ppath)
     
+  
     

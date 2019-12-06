@@ -5,25 +5,11 @@ Created on Wed Dec  4 11:03:26 2019
 
 @author: yifan
 """
-from seed import seedS, loadData
+from seed import seedGenerator
+from queryGenerator import loadData, findProb
 import random
 from datetime import datetime
-
-
-
-
-
-def findProb(matrix, seedStart, seed):
-    '''
-    seedStart: starting position of the seed wrt matrix
-    output is a probability of the seed aligning to the matrix gaplessly
-    '''
-    prob = 0
-    for index in range(len(seed)):
-        n = seed[index]
-        prob += matrix[n][seedStart]
-        seedStart+=1
-    return prob
+import time
 
 def findBaselineProb(matrix, hspStart, hsp):
     allNu = ['A','C','T','G']
@@ -136,18 +122,27 @@ def ungapped_viterbi(obs, seed, matrix):
 if __name__ == '__main__':
     
     # Calculate the most probable state path using the Viterbi algorithm. 
-    genome_path = "../data/chr22.maf.ancestors.42000000.complete.boreo.fa.txt"
-    prob_path = "../data/chr22.maf.ancestors.42000000.complete.boreo.conf.txt"
-    matrix, highest_prob_genome_str = loadData(genome_path, prob_path)
-    querySeqTester = 'AAGGGGTTTTACGGAATTCCGAAC' #tester
-    seedPosList = seedS(querySeqTester, highest_prob_genome_str, k=7)
-    # toy example
-    obs = querySeqTester # query sequence
-    seed = seedPosList[100]
-    hsp = ungapped_viterbi(obs, seed, matrix)
+    gpath = "../data/chr22.maf.ancestors.42000000.complete.boreo.fa.txt"
+    ppath = "../data/chr22.maf.ancestors.42000000.complete.boreo.conf.txt"
+    m, hpg_str = loadData(gpath, ppath)
+#    # --- toy example --- 
+#    querySeqTester = 'AAGGGGTTTTACGGAATTCCGAAC'
+#    seedTester = "AAG" 
+#    hsp = ungapped_viterbi(querySeqTester, seedTester, m)
+#    
     # in hsp:
     #  0: prob; 1:pos wrt matrix; 2: pos wrt query
 
+    # --- generate seeds with various k-word length ---
+    start = time.time()
+    querySeeds_8, queryseed_8 = seedGenerator(gpath, ppath, m, hpg_str, kword = 8)
+    end = time.time()
+    timeElapsed = end - start #TODO: record this somewhere
 
+#    querySeeds_11, queryseed_11 = seedGenerator(gpath, ppath, m, hpg_str, kword = 11)
+#    querySeeds_5, queryseed_5 = seedGenerator(gpath, ppath, m, hpg_str, kword = 5)
+
+    # TODO: for each of these queries, run ungapped viterbi on each seed ---
+    
         
     

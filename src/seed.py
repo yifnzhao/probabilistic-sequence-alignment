@@ -10,47 +10,18 @@ Created on Tue Dec  3 20:46:14 2019
 import numpy as np
 from re import finditer
 from math import log
-from queryGenerator import queryGenerator
+import queryGenerator
 import time
+import pickle
 
 
-def loadData(genome_path, prob_path):
-    allNu = ['A','C','T','G']
-    matrix = dict()
-    # read genome data
-    f_genome = open(genome_path)
-    genome = f_genome.read()
-    f_genome.close()
-    # read probability data
-    f_prob = open(prob_path)
-    prob = f_prob.read()
-    f_prob.close()
-    prob = prob.split()
-    genome = list(genome)
-    for nu in allNu:
-        matrix[nu] = []
-    highest_prob_genome = []
-    for i in range(len(genome)):
-        # update matrix and highestProbGenome
-        #  for the nucleotide with highest probability
-        maxProb = -log(float(prob[i]))
-        matrix[genome[i]].append(maxProb)
-        highest_prob_genome.append(genome[i])
-        
-        # update matrix for the rest
-        rest_nu = [n for n in allNu if n!=genome[i]]
-        rest_prob = -log((1-maxProb) / float(3)) 
-        for n in rest_nu:
-            matrix[n].append(rest_prob)
-    
-    highest_prob_genome_str =''.join(highest_prob_genome)
-    return matrix, highest_prob_genome_str
 
 def seedS(querySeq, highest_prob_genome_str, k = 8):
     '''
     k = word size to be searched
     reutrns a list of seed positions [(x,y)，seed]
     '''
+    print("seedS in progress...")
     start = time.time()
     seedPosList = []
     for i in range(len(querySeq)-k):
@@ -60,21 +31,25 @@ def seedS(querySeq, highest_prob_genome_str, k = 8):
             # i is the start position of the seed in query
     end = time.time()
     timeElapsed = end - start
+    print("seedS: " + str(timeElapsed))
     return timeElapsed, seedPosList
 
 
-def seedM_fix_n(query, matrix, k = 8, n = 100):
+def seedM_fix_n(querySeq, matrix, k = 8, n = 100):
     '''
     k: word size
     n: number of seeds to look for (fixed)
     returns seedPosList which is a list of seed positions (x,y)
     '''
+    print("seedM_fix_n in progress...")
     start = time.time()
     seedPosList = [0 for i in range(n)]
     seedProbList = [100 for i in range(n)]
     #loop over all k-words in querySeq
-    for i in range(len(query)-k): 
-        k_word = query[i:i+k]
+    for i in range(len(querySeq)-k): 
+
+        k_word = querySeq[i:i+k]
+#        print (k_word)
         #loop over all positions in matrix
         for pos in range(len(matrix['A'])-k): 
             #find probability : thisQuery_prob
@@ -84,52 +59,60 @@ def seedM_fix_n(query, matrix, k = 8, n = 100):
                 thisQuery_prob += matrix[query_n][pos+j]
                 # TODO: argmax is probably the most time consuming step
                 # find index of lowest probability 
-                index_min = np.argmax(seedProbList) 
-                # find the lowest seed probability seen so far
-                minSeedProb = seedProbList[index_min] 
+            
+            # find min prob
+            index_min = np.argmax(seedProbList) 
+            minSeedProb = seedProbList[index_min] 
+            
+            # compare this query prob with min prob
             if thisQuery_prob < minSeedProb: # comparing neg log prob
                 seedPosList[index_min] = [(pos, pos+k), k_word,  (i, i+k)]
                 # i is the start position of the seed in query
                 seedProbList[index_min] = thisQuery_prob
+    
     end = time.time()
     timeElapsed = end - start
+    print("seedM_fix_n: " + str(timeElapsed))
     return timeElapsed, seedPosList,seedProbList
 
-def seedM_fix_min_prob(query, matrix, k = 8, min_prob = 0.1):
+def seedM_fix_min_prob(querySeq, matrix, k = 8, min_prob = 0.1):
     '''
     k: word size
     n: number of seeds to look for 
     returns seedPosList which is a list of seed positions (x,y)
     '''
+    print("seedM_fix_min_prob in progress...")
     start = time.time()
     seedPosList = []
     seedProbList = []
-    for i in range(len(query)-k): #loop over all k-words in querySeq
-        k_word = query[i:i+k]
+    for i in range(len(querySeq)-k): #loop over all k-words in querySeq
+        k_word = querySeq[i:i+k]
         for pos in range(len(matrix['A'])-k): #loop over all positions in Matrix
-            #find probability : thisQuery_prob
+            # -- find probability : thisQuery_prob --
             thisQuery_prob = 0    
             for j in range(k): 
                 query_n = k_word[j]
                 thisQuery_prob += matrix[query_n][pos+j]
+            # -- compare this query prob with the min prob --
             if thisQuery_prob < -log(min_prob): # comparing neg log prob
                 seedPosList.append([(pos, pos+k), k_word,  (i, i+k)])
                 # i is the start position of the seed in query
                 seedProbList.append(thisQuery_prob)
     end = time.time()
     timeElapsed = end - start
+    print("seedM_fix_min_prob: " + str(timeElapsed))
     return timeElapsed, seedPosList,seedProbList      
 
 
-def seed(gpath, ppath, matrix, highest_prob_genome_str, kword = 8):
+def seedGenerator(query, gpath, ppath, matrix, highest_prob_genome_str, kword = 8):
     '''
-    output[0]: querySeeds, a dictionary querySeeds["generationMethod"] = [list of seeds for each query]
-    output[1]: the same output as the queryGenerator, contains query and its true prob 
+    output: querySeeds, a dictionary querySeeds["generationMethod"] = [list of seeds for each query]
     '''
-    query = queryGenerator(gpath, ppath)
-    print("Start querying...")
+    
+    print("Start seeding...")
     querySeeds = {}
     for k, v in query.items(): # iterate through each method of query generation
+        print("Seeding " + k)
         if k[0] == "q": #check if value is a query list (could be true prob list)
             #k: a str indicates how this list of query sequences was generated, refer to queryGenerator.py
             querySeeds[k] = []
@@ -167,19 +150,28 @@ def seed(gpath, ppath, matrix, highest_prob_genome_str, kword = 8):
             
 
                 querySeeds[k].append([query_seq, seed_dict])
-    
-    
-    return querySeeds, query
+        
+        with open( '../data/' + k + '.txt', 'wb') as handle:
+            pickle.dump(querySeeds[k], handle)
+        
+        
+    return querySeeds
 
 
 if __name__ == "__main__":
     # example usage
     gpath = "../data/chr22.maf.ancestors.42000000.complete.boreo.fa.txt"
     ppath = "../data/chr22.maf.ancestors.42000000.complete.boreo.conf.txt"
-    matrix, hpg_str = loadData(gpath, ppath)
-    querySeeds, query = seed(gpath, ppath, matrix, hpg_str)
+    matrix, hpg_str = queryGenerator.loadData(gpath, ppath)
     
-#    query_seq = 'AGGAATTCCGAAC' #tester, to be commented
+    print("Reading query...")
+    with open('../data/query.txt','rb') as handle:
+        query = pickle.loads(handle.read())
+    querySeeds = seedGenerator(query, gpath, ppath, matrix, hpg_str)
+    
+    
+    
+    
     
     
 
