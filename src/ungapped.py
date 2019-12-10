@@ -5,11 +5,12 @@ Created on Wed Dec  4 11:03:26 2019
 
 @author: yifan
 """
-from seed import seedGenerator
+from seed import seedGenerator, seedS, seedM_fix_n
 from queryGenerator import loadData, findProb
 import random
 from datetime import datetime
 import time
+import pickle
 
 def findBaselineProb(matrix, hspStart, hsp):
     allNu = ['A','C','T','G']
@@ -68,6 +69,7 @@ def ungapped_viterbi(obs, seed, matrix):
     
     while length_hsp < len(obs)-1:
         V[length_hsp] = sorted(V[length_hsp]) 
+        # --- checking baseline -----
         hspPos_m = V[length_hsp][0][1]
         hspPos_q = V[length_hsp][0][2]
         hspStart = hspPos_m[0]
@@ -117,7 +119,7 @@ def ungapped_viterbi(obs, seed, matrix):
     
     V[length_hsp] = sorted(V[length_hsp])
     return V[length_hsp][0][0:3] 
-       
+
 
 if __name__ == '__main__':
     
@@ -134,15 +136,85 @@ if __name__ == '__main__':
     #  0: prob; 1:pos wrt matrix; 2: pos wrt query
 
     # --- generate seeds with various k-word length ---
-    start = time.time()
-    querySeeds_8, queryseed_8 = seedGenerator(gpath, ppath, m, hpg_str, kword = 8)
-    end = time.time()
-    timeElapsed = end - start #TODO: record this somewhere
+#    start = time.time()
+#    
+#    end = time.time()
+#    timeElapsed = end - start #TODO: record this somewhere
+#
 
-#    querySeeds_11, queryseed_11 = seedGenerator(gpath, ppath, m, hpg_str, kword = 11)
-#    querySeeds_5, queryseed_5 = seedGenerator(gpath, ppath, m, hpg_str, kword = 5)
-
-    # TODO: for each of these queries, run ungapped viterbi on each seed ---
+    with open('../data/query.txt', 'rb') as handle:
+        query = pickle.loads(handle.read())
+#    
     
+    querySeqList = query['q_100_50'] #  a list of 25 queries 
+    queryAnswer = query['p_100_50']
+    
+    with open('../data/query_seeds_1209_test.txt', 'rb') as handle:
+        querySeeds = pickle.loads(handle.read())
+    counter = 0
+    hspList = []   
+#    for querySeq in querySeeds:
+    # reading the first query
+    querySeq = querySeeds[0]
+    seq = querySeq[0]
+    seedDict = querySeq[1]
+    hspS = []
+    hspM = []
+    runtime = []
+    print(seq)
+    
+#    print("seedM")
+#    for seed in seedDict["M_fix_maxSeeds_25"][1]:
+#        counter+=1
+#        print(counter)
+#        hsp = ungapped_viterbi(seq, seed, m)
+#        hspM.append(hsp)
+#        
+        
+    print("seedS")
+    for seed in seedDict["S"][1]:
+        start_g = seed[0][0]
+        start_q = seed[2][0]
+        counter+=1
+        print(counter)
+        start = time.time()
+        hsp = ungapped_viterbi(seq, seed, m)
+        end = time.time()
+        timeElapsed = end - start 
+        hspS.append(hsp)
+        runtime.append([timeElapsed, start_g, start_q])
+    
+    
+    hspList.append((querySeq, hspS, hspM))
+
+
+        
+    with open('../data/hspList_1210_runtime.txt','wb') as handle:
+        pickle.dump(runtime, handle)
+        
+        
         
     
+#    querySeeds = []
+#    for querySeq in querySeqList: # iterate through each query sequence (25 in total)
+#
+#        print("Seeding a new sequence...")  
+#        kword = 8
+#        seed_dict = {}
+#        t, seedPosListS = seedS(querySeq, hpg_str, k=kword) 
+#        seed_dict["S"] = [t, seedPosListS]
+#        t, seedPosListM_fix_n, seedProbListM_fix_n = seedM_fix_n(querySeq, m, n = 25, k=kword)
+#        seed_dict["M_fix_maxSeeds_25"] = [t, seedPosListM_fix_n, seedProbListM_fix_n]
+#        querySeeds.append([querySeq, seed_dict])
+#            
+   
+    
+    
+
+#
+#
+#
+#    with open('../data/q_100_50.txt','rb') as handle:
+#        seeds = pickle.loads(handle.read())
+#    
+#    
