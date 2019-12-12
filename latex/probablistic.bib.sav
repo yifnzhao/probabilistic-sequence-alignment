@@ -1,0 +1,14 @@
+% Encoding: UTF-8
+
+@Article{doolittle1981similar,
+  author    = {Doolittle, Russell F},
+  title     = {Similar amino acid sequences: chance or common ancestry?},
+  journal   = {Science},
+  year      = {1981},
+  volume    = {214},
+  number    = {4517},
+  pages     = {149--159},
+  publisher = {American Association for the Advancement of Science},
+}
+
+@Comment{jabref-meta: databaseType:bibtex;}

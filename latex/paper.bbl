@@ -1,0 +1,28 @@
+\begin{thebibliography}{1}
+
+\bibitem{bilmes1998}
+J.A. Bilmes.
+\newblock A gentle tutorial of the em algorithm and its application to
+  parameter estimation for gaussian mixture and hidden markov models.
+\newblock {\em International Computer Science Institute}, 4:126--140, 01 1998.
+
+\bibitem{eddy2009}
+Sean Eddy.
+\newblock A new generation of homology search tools based on probabilistic
+  inference.
+\newblock {\em Genome informatics. International Conference on Genome
+  Informatics}, 23:205--11, 10 2009.
+
+\bibitem{needleman1970}
+Saul Needleman and Christian Wunsch.
+\newblock A general method applicable to search for similarities in amino acid
+  sequence of 2 proteins.
+\newblock {\em Journal of molecular biology}, 48:443--53, 04 1970.
+
+\bibitem{polyanovsky2011}
+Valery Polyanovsky, Mikhail Roytberg, and Vladimir Tumanyan.
+\newblock Comparative analysis of the quality of a global algorithm and a local
+  algorithm for alignment of two sequences.
+\newblock {\em Algorithms for molecular biology : AMB}, 6:25, 10 2011.
+
+\end{thebibliography}

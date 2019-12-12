@@ -1,0 +1,15 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}
+\contentsline {section}{\numberline {2}Background}{2}{section.2}
+\contentsline {section}{\numberline {3}Materials}{2}{section.3}
+\contentsline {subsection}{\numberline {3.1}Probabilistic genome dataset}{2}{subsection.3.1}
+\contentsline {subsection}{\numberline {3.2}Probabilistic genome query generation}{3}{subsection.3.2}
+\contentsline {section}{\numberline {4}Methods}{3}{section.4}
+\contentsline {subsection}{\numberline {4.1}General BLAST algorithm}{3}{subsection.4.1}
+\contentsline {subsection}{\numberline {4.2}Seeding}{4}{subsection.4.2}
+\contentsline {subsection}{\numberline {4.3}Extension}{4}{subsection.4.3}
+\contentsline {section}{\numberline {5}Results}{6}{section.5}
+\contentsline {section}{\numberline {6}Discussion}{7}{section.6}
+\contentsline {subsection}{\numberline {6.1}Seeding evaluation}{7}{subsection.6.1}
+\contentsline {subsection}{\numberline {6.2}Ungapped extension evaluation}{9}{subsection.6.2}
+\contentsline {subsection}{\numberline {6.3}pBLAST evaluation}{9}{subsection.6.3}
+\contentsline {subsection}{\numberline {6.4}Other limitations and future improvement}{10}{subsection.6.4}

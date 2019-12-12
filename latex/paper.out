@@ -1,0 +1,15 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{Background}{}% 2
+\BOOKMARK [1][-]{section.3}{Materials}{}% 3
+\BOOKMARK [2][-]{subsection.3.1}{Probabilistic genome dataset}{section.3}% 4
+\BOOKMARK [2][-]{subsection.3.2}{Probabilistic genome query generation}{section.3}% 5
+\BOOKMARK [1][-]{section.4}{Methods}{}% 6
+\BOOKMARK [2][-]{subsection.4.1}{General BLAST algorithm}{section.4}% 7
+\BOOKMARK [2][-]{subsection.4.2}{Seeding}{section.4}% 8
+\BOOKMARK [2][-]{subsection.4.3}{Extension}{section.4}% 9
+\BOOKMARK [1][-]{section.5}{Results}{}% 10
+\BOOKMARK [1][-]{section.6}{Discussion}{}% 11
+\BOOKMARK [2][-]{subsection.6.1}{Seeding evaluation}{section.6}% 12
+\BOOKMARK [2][-]{subsection.6.2}{Ungapped extension evaluation}{section.6}% 13
+\BOOKMARK [2][-]{subsection.6.3}{pBLAST evaluation}{section.6}% 14
+\BOOKMARK [2][-]{subsection.6.4}{Other limitations and future improvement}{section.6}% 15
